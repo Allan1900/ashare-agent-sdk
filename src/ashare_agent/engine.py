@@ -1,0 +1,201 @@
+"""PG query engine — wraps ashare PostgreSQL database with correct schema."""
+
+import pandas as pd
+from sqlalchemy import create_engine
+from .config import get_settings
+
+
+_engine = None
+_name_cache = None
+
+
+def get_engine():
+    global _engine
+    if _engine is None:
+        _engine = create_engine(get_settings().pg_uri)
+    return _engine
+
+
+def _load_name_cache():
+    """Load stock name -> ts_code mapping into memory."""
+    global _name_cache
+    if _name_cache is not None:
+        return _name_cache
+    conn = get_engine().raw_connection()
+    try:
+        df = pd.read_sql("SELECT ts_code, name FROM stock_basic", conn)
+        _name_cache = dict(zip(df["name"], df["ts_code"]))
+        extra = {}
+        for name, code in _name_cache.items():
+            for suffix in ["A", " ", "股份有限公司", "有限公司", "集团"]:
+                if name.endswith(suffix) and len(name) > len(suffix) + 1:
+                    short = name[: -len(suffix)].strip()
+                    if short not in _name_cache and short not in extra:
+                        extra[short] = code
+        _name_cache.update(extra)
+        return _name_cache
+    finally:
+        conn.close()
+
+
+def name_to_code(name: str) -> str | None:
+    """Convert stock name to ts_code."""
+    cache = _load_name_cache()
+    if name in cache:
+        return cache[name]
+    for n, code in cache.items():
+        if name in n or n in name:
+            return code
+    return None
+
+
+def query(sql: str, params: list = None) -> pd.DataFrame:
+    """Execute SQL via raw_connection (psycopg2), return DataFrame."""
+    conn = get_engine().raw_connection()
+    try:
+        return pd.read_sql(sql, conn, params=params or [])
+    finally:
+        conn.close()
+
+
+def query_daily(code: str, days: int = 20) -> pd.DataFrame:
+    return query(
+        "SELECT trade_date, open, high, low, close, vol, amount "
+        "FROM daily WHERE ts_code = %s ORDER BY trade_date DESC LIMIT %s",
+        [code, days]
+    )
+
+
+def query_daily_basic(code: str, days: int = 20) -> pd.DataFrame:
+    return query(
+        "SELECT trade_date, pe_ttm, pb, ps, total_mv, circ_mv, "
+        "dv_ratio, turnover_rate FROM daily_basic "
+        "WHERE ts_code = %s ORDER BY trade_date DESC LIMIT %s",
+        [code, days]
+    )
+
+
+def query_moneyflow(code: str, days: int = 20) -> pd.DataFrame:
+    return query(
+        "SELECT trade_date, buy_sm_vol, sell_sm_vol, buy_md_vol, sell_md_vol, "
+        "buy_lg_vol, sell_lg_vol, buy_elg_vol, sell_elg_vol, "
+        "net_mf_vol, net_mf_amount "
+        "FROM moneyflow WHERE ts_code = %s ORDER BY trade_date DESC LIMIT %s",
+        [code, days]
+    )
+
+
+def query_financial(code: str, limit: int = 8) -> pd.DataFrame:
+    """Financial indicators — ROE, EPS, margins, YoY growth, per-share data."""
+    return query(
+        "SELECT end_date, eps, dt_eps AS diluted_eps, roe, roe_waa AS weighted_roe, "
+        "roa, yoy_eps, yoy_revenue, yoy_profit, "
+        "revenue_ps, capital_rese_ps, undist_profit_ps "
+        "FROM fina_indicator WHERE ts_code = %s "
+        "ORDER BY end_date DESC LIMIT %s",
+        [code, limit]
+    )
+
+
+def query_industry_performance(top_n: int = 15) -> pd.DataFrame:
+    """Compute industry ranking from latest daily data."""
+    return query(
+        "WITH latest AS ("
+        "  SELECT DISTINCT ON (b.ts_code) b.ts_code, b.name, b.industry, "
+        "    d.close, d.pct_chg "
+        "  FROM stock_basic b "
+        "  JOIN daily d ON d.ts_code = b.ts_code "
+        "  ORDER BY b.ts_code, d.trade_date DESC "
+        ") "
+        "SELECT industry, COUNT(*) AS stock_count, "
+        "  ROUND(AVG(pct_chg)::numeric, 2) AS avg_change "
+        "FROM latest WHERE industry IS NOT NULL "
+        "GROUP BY industry ORDER BY avg_change DESC LIMIT %s",
+        [top_n]
+    )
+
+
+def query_hsgt(days: int = 10) -> pd.DataFrame:
+    return query(
+        "SELECT trade_date, north_money, south_money "
+        "FROM hsgt_moneyflow ORDER BY trade_date DESC LIMIT %s",
+        [days]
+    )
+
+
+def query_hsgt_top(days: int = 5) -> pd.DataFrame:
+    return query(
+        "SELECT trade_date, ts_code, name, close, pct_change, amount "
+        "FROM hsgt_top10 ORDER BY trade_date DESC, amount DESC LIMIT %s",
+        [days * 10]
+    )
+
+
+def query_top_list(trade_date: str) -> pd.DataFrame:
+    return query(
+        "SELECT ts_code, name, close, pct_change, amount, "
+        "l_amount, net_amount, buy_amount, sell_amount "
+        "FROM top_list WHERE trade_date = %s ORDER BY net_amount DESC",
+        [trade_date]
+    )
+
+
+def query_macro(indicator: str, limit: int = 120) -> pd.DataFrame:
+    table_map = {
+        "cpi": "cn_cpi", "ppi": "cn_ppi", "pmi": "cn_pmi",
+        "gdp": "cn_gdp", "m2": "cn_m2", "shibor": "shibor",
+        "lpr": "shibor_lpr",
+    }
+    table = table_map.get(indicator.lower())
+    if not table:
+        return pd.DataFrame()
+    return query(f"SELECT * FROM {table} ORDER BY date DESC LIMIT %s", [limit])
+
+
+def search_stocks(keyword: str, limit: int = 20) -> pd.DataFrame:
+    return query(
+        "SELECT ts_code, symbol, name, industry, area, market, list_date "
+        "FROM stock_basic WHERE ts_code ILIKE %s OR name ILIKE %s LIMIT %s",
+        [f"%{keyword}%", f"%{keyword}%", limit]
+    )
+
+
+def screen_stocks(
+    pe_max: float = None, pb_max: float = None,
+    roe_min: float = None, industry: str = None,
+    limit: int = 50,
+) -> pd.DataFrame:
+    """Screen stocks by PE, PB, ROE, industry filters."""
+    conditions = []
+    params = []
+    if pe_max is not None:
+        conditions.append("db.pe_ttm <= %s")
+        params.append(pe_max)
+    if pb_max is not None:
+        conditions.append("db.pb <= %s")
+        params.append(pb_max)
+    if roe_min is not None:
+        conditions.append("fi.roe >= %s")
+        params.append(roe_min)
+    if industry:
+        conditions.append("sb.industry = %s")
+        params.append(industry)
+    where = " AND ".join(conditions) if conditions else "1=1"
+
+    sql = (
+        "SELECT sb.ts_code, sb.name, sb.industry, sb.area, "
+        "db.pe_ttm, db.pb, db.total_mv, db.turnover_rate "
+        "FROM stock_basic sb "
+        "JOIN LATERAL ("
+        "  SELECT pe_ttm, pb, total_mv, turnover_rate"
+        "  FROM daily_basic WHERE ts_code = sb.ts_code"
+        "  ORDER BY trade_date DESC LIMIT 1"
+        ") db ON true "
+        "LEFT JOIN LATERAL ("
+        "  SELECT roe FROM fina_indicator WHERE ts_code = sb.ts_code"
+        "  ORDER BY end_date DESC LIMIT 1"
+        ") fi ON true "
+        f"WHERE {where} "
+        "ORDER BY db.total_mv DESC NULLS LAST LIMIT %s"
+    )
+    return query(sql, params + [limit])

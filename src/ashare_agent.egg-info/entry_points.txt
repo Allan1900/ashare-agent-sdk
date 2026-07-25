@@ -1,0 +1,2 @@
+[console_scripts]
+ashare-agent = ashare_agent.cli:cli

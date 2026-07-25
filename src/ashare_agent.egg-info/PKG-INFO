@@ -1,0 +1,122 @@
+Metadata-Version: 2.4
+Name: ashare-agent
+Version: 0.1.0
+Summary: 让 AI Agent 用自然语言查 A 股数据 —— OpenAI 兼容 API + MCP 协议 + CLI
+Author-email: ALLAN <hermes@nousresearch.com>
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: click>=8.0
+Requires-Dist: pandas>=2.0
+Requires-Dist: sqlalchemy>=2.0
+Requires-Dist: psycopg2-binary>=2.9
+Requires-Dist: fastapi>=0.100
+Requires-Dist: uvicorn>=0.23
+Requires-Dist: pyyaml>=6.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: httpx>=0.24; extra == "dev"
+Dynamic: license-file
+
+# 🏦 ashare-agent
+
+**让 AI Agent 像聊天一样查 A 股数据。**
+
+```python
+from ashare_agent import AshareClient
+
+client = AshareClient(api_key="your_key")
+result = client.query("宁德时代最近5个交易日资金流向如何？")
+print(result)
+```
+
+## ✨ 特性
+
+- 🔌 **OpenAI 协议兼容** — Claude Code / Cursor / Codex / OpenClaw 直接调用
+- 🔗 **MCP 协议原生支持** — 任何 MCP 兼容 Agent 即插即用
+- 🐍 **Python SDK** — `pip install ashare-agent`
+- ⚡ **分钟级数据** — 收盘后 30 分钟全市场就绪
+- 📊 **3400万+ 行数据** — 日线/财务/资金/行业/龙虎榜/宏观全覆盖
+- 🎯 **Agent 原生** — 不是 REST API 套壳，是 Agent 友好的数据接口
+
+## 🚀 快速开始
+
+### 安装
+
+```bash
+pip install ashare-agent
+```
+
+### 使用 CLI
+
+```bash
+# 查行情
+ashare-agent query "贵州茅台最近10个交易日收盘价"
+
+# 查资金流向
+ashare-agent query "宁德时代今日资金流向"
+
+# 查财务数据
+ashare-agent query "比亚迪2025年营收和利润"
+```
+
+### 使用 Python SDK
+
+```python
+from ashare_agent import AshareClient
+
+client = AshareClient()
+df = client.query_daily("000001.SZ", days=5)
+print(df)
+```
+
+### 使用 MCP 协议（Claude Code / Cursor）
+
+在你的 `claude_desktop_config.json` 中添加：
+
+```json
+{
+  "mcpServers": {
+    "ashare": {
+      "type": "http",
+      "url": "http://localhost:8900/mcp/v1",
+      "headers": {"x-api-key": "your_api_key"}
+    }
+  }
+}
+```
+
+然后在 Claude Code 中直接问：
+
+> "宁德时代最近资金流向怎么样？"
+> "帮我筛选 PE<20 且 ROE>15% 的股票"
+> "今天北向资金买了哪些股票？"
+
+## 📋 支持的数据
+
+| 类别 | 内容 | 时间范围 |
+|------|------|---------|
+| 📈 日线行情 | 开高低收、成交量、成交额 | 2015-01 ~ 至今 |
+| 📊 每日指标 | PE/PB/PS/市值/换手率 | 2015-01 ~ 至今 |
+| 💰 资金流向 | 主力/散户净流入 | 2015-01 ~ 至今 |
+| 📑 财务数据 | 营收/利润/ROE/资产负债表/现金流 | 2008 ~ 至今 |
+| 🏭 行业数据 | 行业分类、行业涨跌排行 | 2015-01 ~ 至今 |
+| 📋 龙虎榜 | 每日上榜股票明细 | 2015-01 ~ 至今 |
+| 🌐 宏观数据 | CPI/PPI/PMI/GDP/M2/Shibor/LPR | 2000 ~ 至今 |
+| 🇭🇰 北向资金 | 沪深股通每日汇总 + 十大活跃股 | 2025-01 ~ 至今 |
+
+## 🔑 API Key
+
+免费体验请通过 GitHub Issues 申请，或邮件联系。
+
+## 📖 文档
+
+- [快速开始](docs/getting-started.md)
+- [API 参考](docs/api-reference.md)
+- [MCP 集成指南](docs/mcp-integration.md)
+- [Agent 使用示例](docs/agent-examples.md)
+
+## 📜 许可证
+
+MIT
