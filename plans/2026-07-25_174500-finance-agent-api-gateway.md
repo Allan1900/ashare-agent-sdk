@@ -16,7 +16,7 @@
 
 | 痛点 | 现有方案 | 我们的方案 |
 |------|---------|-----------|
-| 量化数据接口（Tushare/AkShare） | Python 代码调用，Agent 无法直接使用 | **OpenAI 兼容 API + MCP 协议**，Agent 零适配 |
+| 量化数据接口（公开API/AkShare） | Python 代码调用，Agent 无法直接使用 | **OpenAI 兼容 API + MCP 协议**，Agent 零适配 |
 | 数据与 AI 割裂 | 查数据一个工具，分析另一个工具 | Agent 在同一个对话中查数据+分析+出报告 |
 | 分钟级数据 | 日频更新，盘中只有 Level-2 付费 | **分钟级 Pipeline**，收盘后全市场数据就绪 |
 | 金融 API 聚合 | 通用聚合站没有金融数据 | 垂直金融数据 + LLM API 可组合调用 |
@@ -204,10 +204,10 @@ client.query("宁德时代最近5个交易日资金流向如何？")
 |------|------|---------|
 | 2.1 | **SEO 关键词研究** — 挖掘 "A股API""金融数据接口""量化数据"等词的长尾变体 | 0.5 天 |
 | 2.2 | **每周 2 篇技术文章：** | 持续 |
-|  | - "2026年A股金融数据API横向对比（Tushare vs AkShare vs Agent API）" | |
+|  | - "2026年A股金融数据API横向对比（公开API vs AkShare vs Agent API）" | |
 |  | - "用 Claude Code 做量化分析：完整教程" | |
 |  | - "AI Agent 选股初体验：自然语言查询 A 股基本面" | |
-|  | - "从 Tushare 迁移到 Agent API：5 分钟上手" | |
+|  | - "从 公开API 迁移到 Agent API：5 分钟上手" | |
 | 2.3 | **开源社区运营** — 回复 GitHub Issues，处理 PR，持续发布 Release | 持续 |
 | 2.4 | **建 Landing Page** — 简单静态页（GitHub Pages/Cloudflare Pages），收邮箱做 waitlist | 1 天 |
 | 2.5 | **搜索控制台提交** — 提交 sitemap 到 Google/Bing/百度 | 0.5 天 |
@@ -243,7 +243,7 @@ client.query("宁德时代最近5个交易日资金流向如何？")
 
 | 任务 | 内容 |
 |------|------|
-| 4.1 | 写深度对比文章："A股量化数据基础设施 2026 全景：从 Tushare 到 Agent API" |
+| 4.1 | 写深度对比文章："A股量化数据基础设施 2026 全景：从 公开API 到 Agent API" |
 | 4.2 | 制作视频教程 — B站/YouTube "用 AI Agent 做 A 股量化" 系列 |
 | 4.3 | 合作伙伴计划 — 与量化社区/财经自媒体合作推广 |
 | 4.4 | 企业版功能 — 子账号管理、审计日志、SLA 保障、专线部署 |
@@ -323,7 +323,7 @@ Authorization: Bearer ashare-xxx...
 |------|--------|--------|--------|
 | **核心品牌词** | ashare agent sdk、A股 Agent API、金融数据 Agent | 低 | 🔴 P0 |
 | **需求词** | A股 API 接口、免费股票数据 API、金融数据接口 Python | 中 | 🔴 P0 |
-| **竞品替代词** | Tushare 替代、AkShare 替代、Tushare API 平替 | 中-高 | 🟡 P1 |
+| **竞品替代词** | 公开API 替代、AkShare 替代、公开API API 平替 | 中-高 | 🟡 P1 |
 | **趋势词** | AI Agent 金融数据、MCP 金融、Claude Code 查股票 | 低 | 🟡 P1 |
 | **场景词** | 量化交易数据接口、A股回测数据源、股票基本面数据 API | 中 | 🟢 P2 |
 | **长尾词** | 龙虎榜数据接口 Python、北向资金 API、行业板块涨跌 API | 低 | 🟢 P2 |
@@ -333,16 +333,16 @@ Authorization: Bearer ashare-xxx...
 **技术教程类：**
 ```
 标题：用 Claude Code 查 A 股行情——30 秒上手
-结构：问题 → 传统方案（Tushare 代码）→ Agent 方案（自然语言）→ 对比 → 获取方式
+结构：问题 → 传统方案（公开API 代码）→ Agent 方案（自然语言）→ 对比 → 获取方式
 SEO 关键词：Claude Code A股、AI Agent 股票数据
 发布渠道：CSDN / SegmentFault / 知乎
 ```
 
 **对比评测类：**
 ```
-标题：2026 年 A 股数据 API 横向对比：Tushare vs AkShare vs Agent API
+标题：2026 年 A 股数据 API 横向对比：公开API vs AkShare vs Agent API
 结构：场景 → 各方案代码示例 → 速度/易用性/Agent 兼容性打分 → 选择建议
-SEO 关键词：A股数据API 对比、Tushare 替代、AkShare 平替
+SEO 关键词：A股数据API 对比、公开API 替代、AkShare 平替
 发布渠道：CSDN / 知乎 / 掘金
 ```
 
@@ -363,7 +363,7 @@ SEO 关键词：AI Agent 量化、自动选股、Claude Code 实战
 | W2 | "MCP 协议实战：30 行代码让 Agent 访问金融数据库" | CSDN+SF |
 | W3 | "A股数据 API 横向对比 2026" | 知乎+CSDN+掘金 |
 | W4 | "用 Claude Code 做量化分析完整教程" | 全渠道 |
-| W5 | "从 Tushare 迁移到 Agent API 只需 5 分钟" | CSDN+知乎 |
+| W5 | "从 公开API 迁移到 Agent API 只需 5 分钟" | CSDN+知乎 |
 | W6 | "AI Agent 选股初体验" | 知乎+公众号 |
 | W7+ | 每周一篇，轮换类型 | 全渠道 |
 
@@ -390,7 +390,7 @@ SEO 关键词：AI Agent 量化、自动选股、Claude Code 实战
 | 风险 | 概率 | 影响 | 应对 |
 |------|------|------|------|
 | **数据合规** | 中 | 高 | 只使用公开金融数据，不碰内幕/实时高频数据；明确数据来源声明 |
-| **Tushare 上游变化** | 中 | 中 | 数据 Pipeline 本身已有 schema 漂移应对机制，确保持续可用 |
+| **公开API 上游变化** | 中 | 中 | 数据 Pipeline 本身已有 schema 漂移应对机制，确保持续可用 |
 | **SEO 见效慢** | 中 | 中 | 前 3 个月主要靠技术社区直接流量，不依赖搜索引擎 |
 | **GitHub 竞争** | 低 | 中 | 目前没有直接竞品（Agent 原生金融数据接口是蓝海） |
 | **API 滥用/爬虫** | 中 | 中 | API Key 鉴权 + 速率限制 + 用量监控告警 |

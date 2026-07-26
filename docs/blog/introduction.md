@@ -10,7 +10,7 @@
 
 在用 Claude Code 写量化策略的时候，想查一只股票的行情数据，必须：
 
-1. 切到终端，敲 `python3 -c "import tushare as ts; ..."` 
+1. 切到终端，敲 `python3 -c "import 公开数据接口 as ts; ..."` 
 2. 或者打开浏览器去东方财富搜
 3. 把数据手动复制回来
 

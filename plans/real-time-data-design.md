@@ -13,7 +13,7 @@
 
 ## 方案对比
 
-### 方案 A：Tushare Pro 实时日线（推荐 ⭐）
+### 方案 A：公开数据源 实时日线（推荐 ⭐）
 
 | 项目 | 说明 |
 |------|------|
@@ -21,7 +21,7 @@
 | 费用 | **¥200/月**（实时日线权限） |
 | 覆盖 | 全市场 A 股实时日线（开盘后 9:30 开始更新） |
 | 频次 | 每分钟50次，一次可取全市场 |
-| 优点 | 数据标准化、稳定、与你现有 Tushare 生态一致 |
+| 优点 | 数据标准化、稳定、与你现有 现有数据生态一致 |
 | 缺点 | 需额外付费 |
 
 ### 方案 B：AKShare 东方财富实时行情（零成本）
@@ -47,7 +47,7 @@
 ```
 用户请求 → 判断当前是否交易时段 (9:30-15:00)
          │
-         ├── 交易时段 → 实时通道（AKShare/Tushare）
+         ├── 交易时段 → 实时通道（AKShare/公开API）
          │                ↓
          │              直接返回实时数据（不入 PG）
          │
@@ -76,9 +76,9 @@ def is_trading_time() -> bool:
 ### 实时接口封装（可选方案）
 
 ```python
-# 方式 A: Tushare Pro 实时日线（付费，推荐）
-def get_realtime_tushare(code: str) -> pd.DataFrame:
-    import tushare as ts
+# 方式 A: 公开数据源 实时日线（付费，推荐）
+def get_realtime_公开数据接口(code: str) -> pd.DataFrame:
+    import 公开数据接口 as ts
     pro = ts.pro_api()
     df = pro.pro_bar(ts_code=code, freq='D',
                      start_date=datetime.today().strftime('%Y%m%d'))
@@ -100,13 +100,13 @@ def get_realtime_akshare(code: str) -> pd.Series:
 |--------|------|------|--------|
 | 🥇 | **先用已有 PG 数据（已实现）** | ¥0 | 0 天 |
 | 🥈 | **AKShare 免费实时（风险尝试）** | ¥0 | 1 天 |
-| 🥉 | Tushare 实时日线（稳定付费） | ¥200/月 | 0.5 天 |
+| 🥉 | 公开API 实时日线（稳定付费） | ¥200/月 | 0.5 天 |
 
 ### 推荐路径
 
 1. **先不买付费接口** — 当前 PG 数据已覆盖复盘/回测/分析场景
 2. **轻量尝试 AKShare** — 写一个 `realtime.py` 模块，交易时段走 AKShare，非交易时段走 PG。WSL 网络通就上线，不通就退回 PG
-3. **如果 AKShare 不稳定** — 再评估是否买 Tushare ¥200/月实时日线
+3. **如果 AKShare 不稳定** — 再评估是否买 公开API ¥200/月实时日线
 
 ---
 
