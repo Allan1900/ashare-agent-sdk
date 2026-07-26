@@ -1,8 +1,10 @@
 """PG query engine — wraps ashare PostgreSQL database with correct schema."""
 
+import warnings
 import pandas as pd
 from sqlalchemy import create_engine
 from .config import get_settings
+warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy")
 
 
 _engine = None
@@ -150,6 +152,54 @@ def query_macro(indicator: str, limit: int = 120) -> pd.DataFrame:
     if not table:
         return pd.DataFrame()
     return query(f"SELECT * FROM {table} ORDER BY date DESC LIMIT %s", [limit])
+
+
+def query_market_overview() -> pd.DataFrame:
+    """Key A-share market indices: 上证, 深证, 创业板, 科创50."""
+    return query(
+        "SELECT ts_code, trade_date, close, pct_chg, vol, amount "
+        "FROM index_daily "
+        "WHERE ts_code IN ('000001.SH', '399001.SZ', '399006.SZ', '000688.SH') "
+        "AND trade_date = (SELECT MAX(trade_date) FROM index_daily)",
+        []
+    )
+
+
+def query_market_breadth(trade_date: str = None) -> pd.DataFrame:
+    """Up/down stocks count for a given date."""
+    if not trade_date:
+        trade_date = query(
+            "SELECT MAX(trade_date) FROM daily", []
+        ).iloc[0, 0]
+    return query(
+        "SELECT "
+        "  COUNT(*) FILTER (WHERE pct_chg > 0) AS up_count,"
+        "  COUNT(*) FILTER (WHERE pct_chg < 0) AS down_count,"
+        "  COUNT(*) FILTER (WHERE pct_chg = 0) AS flat_count,"
+        "  ROUND(AVG(pct_chg)::numeric, 2) AS avg_change,"
+        "  SUM(amount)::bigint AS total_amount "
+        "FROM daily WHERE trade_date = %s",
+        [trade_date]
+    )
+
+
+def query_sector_rotation(days: int = 20) -> pd.DataFrame:
+    """Industry performance over multiple periods for heatmap."""
+    return query(
+        "WITH daily_ind AS ("
+        "  SELECT b.industry, d.trade_date, d.pct_chg"
+        "  FROM daily d JOIN stock_basic b ON b.ts_code = d.ts_code"
+        "  WHERE d.trade_date >= (SELECT MAX(trade_date) - %s FROM daily)"
+        "    AND b.industry IS NOT NULL"
+        ") "
+        "SELECT industry, trade_date, "
+        "  ROUND(AVG(pct_chg)::numeric, 2) AS avg_change, "
+        "  COUNT(*) AS stock_count "
+        "FROM daily_ind "
+        "GROUP BY industry, trade_date "
+        "ORDER BY industry, trade_date",
+        [days]
+    )
 
 
 def search_stocks(keyword: str, limit: int = 20) -> pd.DataFrame:

@@ -242,7 +242,7 @@ with tab3:
                     fig.update_layout(template="plotly_white",
                                       hovermode="x unified",
                                       margin=dict(l=40, r=40, t=40, b=40))
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
 
 # ════════════════════════════════════════════════════
 # TAB 4 — 行业全景
@@ -277,7 +277,7 @@ with tab4:
             template="plotly_white",
             margin=dict(l=10, r=50, t=40, b=10),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
         # Data table
         with st.expander("查看完整数据"):
