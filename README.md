@@ -117,6 +117,7 @@ Agent 友好输出 → 表格 + 文字结论
 ---
 
 ## 📖 文档
+\n## 🐳 Docker\n\n```bash\n# 一键启动（API + PostgreSQL）\ndocker compose up -d\n\n# 仅启动 API（使用外部 PG）\ndocker run -p 8900:8900 \\\n  -e STOCKPULSE_PG_URI="postgresql://user@host/db?options=-c%20search_path=ashare,public" \\\n  ghcr.io/Allan1900/stockpulse:latest\n```\n\n| 端口 | 服务 |\n|------|------|\n| 8900 | OpenAI 兼容 API |\n| 8901 | MCP 协议服务器 |\n
 
 | 链接 | 说明 |
 |------|------|
