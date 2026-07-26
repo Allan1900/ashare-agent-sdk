@@ -190,6 +190,17 @@ def report(code, save):
 
 
 @cli.command()
+def dashboard():
+    """Start the StockPulse Web Dashboard (Streamlit)."""
+    import sys
+    from pathlib import Path
+    dash_path = Path(__file__).parent / "dashboard.py"
+    import streamlit.cli
+    sys.argv = ["streamlit", "run", str(dash_path)]
+    streamlit.cli.main()
+
+
+@cli.command()
 def serve():
     """Start the OpenAI-compatible API server."""
     from .server import run_server
