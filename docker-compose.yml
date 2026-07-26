@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  # ── PostgreSQL ────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: stockpulse-pg
+    environment:
+      POSTGRES_DB: ashare
+      POSTGRES_USER: zrall
+      POSTGRES_PASSWORD: stockpulse
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zrall -d ashare"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── StockPulse API ────────────────────────────
+  stockpulse:
+    build: .
+    container_name: stockpulse-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      STOCKPULSE_PG_URI: "postgresql://zrall:stockpulse@postgres:5432/ashare?options=-c%20search_path=ashare,public"
+      STOCKPULSE_HOST: "0.0.0.0"
+      STOCKPULSE_PORT: "8900"
+    ports:
+      - "8900:8900"
+      - "8901:8901"
+    command: stockpulse serve
+
+volumes:
+  pg_data:
