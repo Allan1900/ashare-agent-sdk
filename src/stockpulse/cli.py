@@ -99,6 +99,79 @@ def query(text, code, days):
         click.echo(f"错误: {e}", err=True)
         sys.exit(1)
 
+# ── Indicator commands ──────────────────────────
+
+@cli.group()
+def indicator():
+    """Calculate technical indicators for a stock."""
+    pass
+
+
+@indicator.command()
+@click.argument("code")
+@click.option("--days", "-d", type=int, default=60, help="Data window")
+def ma(code, days):
+    """Moving averages (MA5/10/20/60)."""
+    from .indicators import calc_ma
+    from .engine import query_daily
+    df = query_daily(code, days)
+    if df.empty:
+        click.echo("无数据"); return
+    click.echo(fmt_df(calc_ma(df.sort_values("trade_date"))))
+
+
+@indicator.command()
+@click.argument("code")
+@click.option("--days", "-d", type=int, default=120)
+def macd(code, days):
+    """MACD: DIF, DEA, histogram."""
+    from .indicators import calc_macd
+    from .engine import query_daily
+    df = query_daily(code, days)
+    if df.empty:
+        click.echo("无数据"); return
+    click.echo(fmt_df(calc_macd(df.sort_values("trade_date"))))
+
+
+@indicator.command()
+@click.argument("code")
+@click.option("--days", "-d", type=int, default=60)
+def rsi(code, days):
+    """RSI (6/12/24)."""
+    from .indicators import calc_rsi
+    from .engine import query_daily
+    df = query_daily(code, days)
+    if df.empty:
+        click.echo("无数据"); return
+    click.echo(fmt_df(calc_rsi(df.sort_values("trade_date"))))
+
+
+@indicator.command()
+@click.argument("code")
+@click.option("--days", "-d", type=int, default=60)
+def kdj(code, days):
+    """KDJ stochastic oscillator."""
+    from .indicators import calc_kdj
+    from .engine import query_daily
+    df = query_daily(code, days)
+    if df.empty:
+        click.echo("无数据"); return
+    click.echo(fmt_df(calc_kdj(df.sort_values("trade_date"))))
+
+
+@indicator.command()
+@click.argument("code")
+@click.option("--days", "-d", type=int, default=60)
+def boll(code, days):
+    """Bollinger Bands."""
+    from .indicators import calc_boll
+    from .engine import query_daily
+    df = query_daily(code, days)
+    if df.empty:
+        click.echo("无数据"); return
+    click.echo(fmt_df(calc_boll(df.sort_values("trade_date"))))
+
+
 
 @cli.command()
 def serve():

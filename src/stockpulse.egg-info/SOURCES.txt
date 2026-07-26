@@ -7,6 +7,7 @@ src/stockpulse/auth.py
 src/stockpulse/cli.py
 src/stockpulse/config.py
 src/stockpulse/engine.py
+src/stockpulse/indicators.py
 src/stockpulse/mcp_server.py
 src/stockpulse/server.py
 src/stockpulse/utils.py
