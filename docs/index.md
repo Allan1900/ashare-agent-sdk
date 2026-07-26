@@ -2,13 +2,13 @@
 layout: default
 ---
 
-# 🏦 ashare-agent
+# 🏦 stockpulse
 
 **让 AI Agent（Claude Code / Cursor / Codex / OpenClaw）用自然语言查 A 股数据。**
 
 ```bash
-pip install ashare-agent
-ashare-agent query "宁德时代最近5个交易日行情"
+pip install stockpulse
+stockpulse query "宁德时代最近5个交易日行情"
 ```
 
 ---
@@ -18,17 +18,17 @@ ashare-agent query "宁德时代最近5个交易日行情"
 ### 使用 CLI
 
 ```bash
-ashare-agent query "宁德时代最近5个交易日行情"
-ashare-agent query "贵州茅台资金流向"
-ashare-agent query "今日行业涨跌排行"
-ashare-agent query "北向资金最近5天"
-ashare-agent query "比亚迪财务数据"
+stockpulse query "宁德时代最近5个交易日行情"
+stockpulse query "贵州茅台资金流向"
+stockpulse query "今日行业涨跌排行"
+stockpulse query "北向资金最近5天"
+stockpulse query "比亚迪财务数据"
 ```
 
 ### 启动 API 服务器（OpenAI 兼容）
 
 ```bash
-ashare-agent serve
+stockpulse serve
 # → http://localhost:8900
 # → /v1/chat/completions
 ```
@@ -36,7 +36,7 @@ ashare-agent serve
 ### 启动 MCP 服务器（Claude Code / Cursor）
 
 ```bash
-ashare-agent mcp
+stockpulse mcp
 # → http://localhost:8901/mcp/v1
 ```
 
@@ -51,7 +51,7 @@ ashare-agent mcp
 | [🔗 MCP 集成](mcp-integration.md) | Claude Code / Cursor 配置 |
 | [🤖 Agent 示例](agent-examples.md) | 使用场景 |
 | [📝 介绍文章](blog/introduction.md) | 《让 Claude Code 直接查 A 股数据》 |
-| [🐙 GitHub](https://github.com/Allan1900/ashare-agent-sdk) | 源代码 |
+| [🐙 GitHub](https://github.com/Allan1900/stockpulse-sdk) | 源代码 |
 
 ---
 

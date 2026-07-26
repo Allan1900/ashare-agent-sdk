@@ -16,10 +16,10 @@ metadata:
 
 ## 配置
 
-确保 `ashare-agent` 包已安装，且 PostgreSQL 数据库可用：
+确保 `stockpulse` 包已安装，且 PostgreSQL 数据库可用：
 
 ```bash
-pip install ashare-agent
+pip install stockpulse
 export ASHARE_AGENT_PG_URI="postgresql://user@host/db?options=-c%20search_path=ashare,public"
 ```
 
@@ -55,4 +55,4 @@ result = fmt_df(df)
 
 - 数据库搜索路径为 `ashare` schema
 - 数据覆盖：日线 2015~今，财务 2008~今
-- 如果 Agent 没有安装 ashare-agent 包，可以用 `pip install` 安装
+- 如果 Agent 没有安装 stockpulse 包，可以用 `pip install` 安装

@@ -1,3 +1,23 @@
+Metadata-Version: 2.4
+Name: stockpulse
+Version: 0.1.0
+Summary: 让 AI Agent 做 A 股分析 —— 不只是查数据。北向资金/龙虎榜/宏观/行情/财务，OpenAI 兼容 API + MCP 协议 + CLI。
+Author-email: ALLAN <hermes@nousresearch.com>
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: click>=8.0
+Requires-Dist: pandas>=2.0
+Requires-Dist: sqlalchemy>=2.0
+Requires-Dist: psycopg2-binary>=2.9
+Requires-Dist: fastapi>=0.100
+Requires-Dist: uvicorn>=0.23
+Requires-Dist: pyyaml>=6.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Dynamic: license-file
+
 # 🫀 StockPulse
 
 **让 AI Agent 做 A 股分析——不仅仅是查数据。**

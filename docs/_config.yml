@@ -1,4 +1,4 @@
-title: ashare-agent
+title: stockpulse
 description: 让 AI Agent 用自然语言查 A 股数据 — OpenAI 兼容 API + MCP 协议 + CLI
 remote_theme: pages-themes/cayman@v0.2.0
 plugins:

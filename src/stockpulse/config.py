@@ -8,7 +8,7 @@ from typing import Optional
 
 CONFIG_PATHS = [
     Path("config.yaml"),
-    Path.home() / ".ashare-agent" / "config.yaml",
+    Path.home() / ".stockpulse" / "config.yaml",
 ]
 
 
@@ -30,7 +30,7 @@ class Settings:
 
     @staticmethod
     def _resolve_pg_uri() -> str:
-        uri = os.environ.get("ASHARE_AGENT_PG_URI")
+        uri = os.environ.get("STOCKPULSE_PG_URI")
         if uri:
             return uri
         user = os.environ.get("USER", "zrall")
@@ -51,10 +51,10 @@ class Settings:
 
     def _apply_env(self):
         mapping = {
-            "pg_uri": "ASHARE_AGENT_PG_URI",
-            "host": "ASHARE_AGENT_HOST",
-            "port": "ASHARE_AGENT_PORT",
-            "log_level": "ASHARE_AGENT_LOG_LEVEL",
+            "pg_uri": "STOCKPULSE_PG_URI",
+            "host": "STOCKPULSE_HOST",
+            "port": "STOCKPULSE_PORT",
+            "log_level": "STOCKPULSE_LOG_LEVEL",
         }
         for key, env_name in mapping.items():
             val = os.environ.get(env_name)

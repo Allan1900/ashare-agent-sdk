@@ -1,4 +1,4 @@
-"""CLI — ashare-agent command line interface."""
+"""CLI — stockpulse command line interface."""
 
 import sys
 import click
@@ -8,14 +8,14 @@ from .engine import (
     query_daily, query_daily_basic, query_moneyflow,
     query_financial, query_industry_performance,
     query_hsgt, query_hsgt_top, query_top_list, query_macro,
-    search_stocks, screen_stocks,
+    search_stocks, screen_stocks, name_to_code,
 )
 from .utils import extract_code, detect_query_type, extract_days, fmt_df
 
 
 @click.group()
 def cli():
-    """ashare-agent — AI Agent-native A-share data tool."""
+    """stockpulse — let AI agents analyze A-share stocks."""
     pass
 
 
@@ -27,11 +27,20 @@ def query(text, code, days):
     """Query A-share data using natural language."""
     q = text or click.get_text_stream("stdin").read().strip()
     if not q and not code:
-        click.echo("Usage: ashare-agent query \"宁德时代最近5个交易日\"")
-        click.echo("       ashare-agent query --code 000001.SZ --days 5")
+        click.echo("Usage: stockpulse query \"宁德时代最近5个交易日行情\"")
+        click.echo("       stockpulse query --code 000001.SZ --days 5")
         sys.exit(1)
 
     ts_code = code or extract_code(q)
+    if not ts_code and q:
+        for suffix in ["行情", "资金流向", "资金", "财务", "股价", "数据", "最近", "今日", "今天"]:
+            if suffix in q:
+                parts = q.split(suffix)[0].strip()
+                if parts:
+                    ts_code = name_to_code(parts)
+                    if ts_code:
+                        break
+
     qtype = detect_query_type(q) if q else "daily"
     days_val = extract_days(q) if q else days
 
@@ -76,9 +85,9 @@ def query(text, code, days):
             df = search_stocks(keyword) if keyword else None
         else:
             click.echo("无法识别查询类型。试试：")
-            click.echo("  ashare-agent query \"宁德时代最近5个交易日\"")
-            click.echo("  ashare-agent query \"北向资金最近10天\"")
-            click.echo("  ashare-agent query \"筛选 PE<20 的股票\"")
+            click.echo("  stockpulse query \"宁德时代最近5个交易日\"")
+            click.echo("  stockpulse query \"北向资金最近10天\"")
+            click.echo("  stockpulse query \"筛选 PE<20 的股票\"")
             sys.exit(1)
 
         if df is not None and not df.empty:

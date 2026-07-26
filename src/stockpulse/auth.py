@@ -9,10 +9,10 @@ from fastapi import Request, HTTPException
 
 
 def _db_path() -> str:
-    env = os.environ.get("ASHARE_AGENT_KEYS_DB")
+    env = os.environ.get("STOCKPULSE_KEYS_DB")
     if env:
         return env
-    return str(Path.home() / ".ashare-agent" / "keys.db")
+    return str(Path.home() / ".stockpulse" / "keys.db")
 
 
 def _get_conn():

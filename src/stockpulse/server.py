@@ -19,7 +19,7 @@ from .utils import (
 )
 import uvicorn
 
-app = FastAPI(title="ashare-agent API", version="0.1.0",
+app = FastAPI(title="stockpulse API", version="0.1.0",
               description="AI Agent-native A-share financial data API")
 
 app.add_middleware(
@@ -145,7 +145,7 @@ def _route_query(text: str) -> str:
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "service": "ashare-agent", "version": "0.1.0"}
+    return {"status": "ok", "service": "stockpulse", "version": "0.1.0"}
 
 
 @app.post("/v1/chat/completions", response_model=ChatResponse)
@@ -180,7 +180,7 @@ def list_models():
                 "id": "ashare-data",
                 "object": "model",
                 "created": 1710000000,
-                "owned_by": "ashare-agent",
+                "owned_by": "stockpulse",
             }
         ],
     }
@@ -188,7 +188,7 @@ def list_models():
 
 def run_server():
     settings = get_settings()
-    print(f"ashare-agent API server starting...")
+    print(f"stockpulse API server starting...")
     print(f"  Listen: http://{settings.host}:{settings.port}")
     print(f"  Docs:  http://{settings.host}:{settings.port}/docs")
     print(f"  Health: http://{settings.host}:{settings.port}/health")

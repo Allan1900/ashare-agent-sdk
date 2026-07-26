@@ -3,7 +3,7 @@
 ## 安装
 
 ```bash
-pip install ashare-agent
+pip install stockpulse
 ```
 
 ## 配置
@@ -21,7 +21,7 @@ export ASHARE_AGENT_PORT=8900
 
 ### 方式二：配置文件
 
-创建 `~/.ashare-agent/config.yaml`：
+创建 `~/.stockpulse/config.yaml`：
 
 ```yaml
 pg_uri: "postgresql://zrall@localhost/ashare?options=-c%20search_path=ashare,public"
@@ -33,7 +33,7 @@ log_level: "info"
 ## 启动 API 服务器
 
 ```bash
-ashare-agent serve
+stockpulse serve
 ```
 
 访问 http://localhost:8900/docs 查看自动生成的 API 文档。
@@ -41,7 +41,7 @@ ashare-agent serve
 ## 启动 MCP 服务器（用于 Claude Code / Cursor）
 
 ```bash
-ashare-agent mcp
+stockpulse mcp
 ```
 
 MCP 服务器运行在 `http://localhost:8901`。
@@ -55,5 +55,5 @@ curl http://localhost:8900/v1/chat/completions \
   -d '{"messages":[{"role":"user","content":"宁德时代最近5个交易日行情"}]}'
 
 # 通过 CLI 查询
-ashare-agent query "宁德时代最近5个交易日行情"
+stockpulse query "宁德时代最近5个交易日行情"
 ```

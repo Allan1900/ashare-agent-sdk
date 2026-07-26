@@ -4,14 +4,14 @@
 
 ```bash
 # In Claude Code terminal:
-ashare-agent query "宁德时代最近5个交易日行情"
+stockpulse query "宁德时代最近5个交易日行情"
 ```
 
 ## Example 2: Cursor with MCP
 
 ```bash
 # Start MCP server
-ashare-agent mcp
+stockpulse mcp
 
 # In Cursor composer, type:
 # "查一下贵州茅台的PE和PB"
@@ -20,7 +20,7 @@ ashare-agent mcp
 ## Example 3: Python SDK
 
 ```python
-from ashare_agent.engine import query_daily, query_moneyflow
+from stockpulse.engine import query_daily, query_moneyflow
 
 # Get daily quotes
 df = query_daily("000001.SZ", days=10)

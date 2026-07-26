@@ -28,7 +28,7 @@ Agent 就自己把数据查回来、分析完、给出结论——这才是 Agen
 
 ## 项目简介
 
-**[ashare-agent](https://github.com/Allan1900/ashare-agent-sdk)** 是一个让 AI Agent 用自然语言查询 A 股数据的工具。它提供三样东西：
+**[stockpulse](https://github.com/Allan1900/stockpulse-sdk)** 是一个让 AI Agent 用自然语言查询 A 股数据的工具。它提供三样东西：
 
 1. **OpenAI 兼容 API** — Claude Code / Cursor / Codex / OpenClaw 都能直接调
 2. **MCP 协议服务器** — 任何支持 MCP 的 Agent 即插即用
@@ -52,7 +52,7 @@ Agent 就自己把数据查回来、分析完、给出结论——这才是 Agen
 ### 1. 安装
 
 ```bash
-pip install ashare-agent
+pip install stockpulse
 ```
 
 ### 2. 配置数据库连接
@@ -69,10 +69,10 @@ export ASHARE_AGENT_PG_URI="postgresql://user@host/db?options=-c%20search_path=a
 
 ```bash
 # 启动 API 服务器
-ashare-agent serve
+stockpulse serve
 
 # 或者启动 MCP 服务器（给 Claude Code / Cursor 用）
-ashare-agent mcp
+stockpulse mcp
 ```
 
 ### 4. 开始查询
@@ -80,7 +80,7 @@ ashare-agent mcp
 **方式一：CLI 直接查**
 
 ```bash
-ashare-agent query "宁德时代最近5个交易日行情"
+stockpulse query "宁德时代最近5个交易日行情"
 ```
 
 输出：
@@ -231,7 +231,7 @@ Agent: trade_date  north_money  south_money
 
 ## 链接
 
-- GitHub: [https://github.com/Allan1900/ashare-agent-sdk](https://github.com/Allan1900/ashare-agent-sdk)
+- GitHub: [https://github.com/Allan1900/stockpulse-sdk](https://github.com/Allan1900/stockpulse-sdk)
 - 文档：`docs/getting-started.md`
 - MCP 集成：`docs/mcp-integration.md`
 

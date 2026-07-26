@@ -18,7 +18,7 @@ from .engine import (
 )
 from .utils import fmt_df
 
-mcp_app = FastAPI(title="ashare-agent MCP Server", version="0.1.0")
+mcp_app = FastAPI(title="stockpulse MCP Server", version="0.1.0")
 
 mcp_app.add_middleware(
     CORSMiddleware,
@@ -197,6 +197,6 @@ def run_mcp_server():
     from .config import get_settings
     settings = get_settings()
     mcp_port = settings.port + 1  # default 8901
-    print(f"ashare-agent MCP server starting on :{mcp_port}")
+    print(f"stockpulse MCP server starting on :{mcp_port}")
     uvicorn.run(mcp_app, host=settings.host, port=mcp_port,
                 log_level=settings.log_level)
