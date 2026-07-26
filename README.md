@@ -22,9 +22,9 @@ stockpulse dashboard
 | 💰 资金流向 | `stockpulse query "贵州茅台资金流向"` | 主力/散户/超大单净流入，890万+行 |
 | 📊 财务指标 | `stockpulse query "比亚迪财务数据"` | EPS/ROE/营收/资本公积，22万+行 |
 | 🏭 行业排行 | `stockpulse query "今日行业涨跌排行"` | 78个行业实时计算 |
-| 🇭🇰 北向资金 | `stockpulse query "北向资金最近10天"` | ⭐ 独家 — 沪深股通每日汇总 |
-| 📋 龙虎榜 | `stockpulse query "龙虎榜 20260724"` | ⭐ 独家 — 每日上榜明细，16万+行 |
-| 🌐 宏观数据 | `stockpulse query "最新CPI数据"` | ⭐ 独家 — CPI/PPI/PMI/GDP/M2/Shibor/LPR，20年 |
+| 🇭🇰 北向资金 | `stockpulse query "北向资金最近10天"` | ⭐ 沪深股通每日汇总 |
+| 📋 龙虎榜 | `stockpulse query "龙虎榜 20260724"` | ⭐ 每日上榜明细，16万+行 |
+| 🌐 宏观数据 | `stockpulse query "最新CPI数据"` | ⭐ CPI/PPI/PMI/GDP/M2/Shibor/LPR，20年 |
 | 🔍 股票搜索 | `stockpulse query "搜索新能源汽车"` | 名称/代码模糊搜索 |
 | 🎯 智能选股 | `stockpulse query "筛选PE<20"` | PE/PB/ROE/行业多维筛选 |
 
