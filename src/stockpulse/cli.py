@@ -171,6 +171,22 @@ def boll(code, days):
         click.echo("无数据"); return
     click.echo(fmt_df(calc_boll(df.sort_values("trade_date"))))
 
+@cli.command()
+@click.argument("code")
+@click.option("--save", "-s", is_flag=True, help="Save report to file")
+def report(code, save):
+    """Generate comprehensive AI analysis report for a stock."""
+    from .report import analyze
+    result = analyze(code)
+    click.echo(result)
+    if save:
+        safe = code.replace(".", "_")
+        from datetime import datetime
+        fname = f"report_{safe}_{datetime.now():%Y%m%d}.md"
+        with open(fname, "w") as f:
+            f.write(result)
+        click.echo("[Saved to " + fname + "]")
+
 
 
 @cli.command()

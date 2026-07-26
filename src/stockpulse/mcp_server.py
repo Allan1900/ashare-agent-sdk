@@ -1,4 +1,5 @@
-"""MCP protocol server — exposes finance + indicators via Model Context Protocol."""
+"""MCP protocol server — data + indicators + report tools."""
+
 import json
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +15,7 @@ from .engine import (
 from . import indicators
 from .utils import fmt_df
 
-mcp_app = FastAPI(title="stockpulse MCP Server", version="0.2.0")
+mcp_app = FastAPI(title="stockpulse MCP Server", version="0.3.0")
 mcp_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], allow_credentials=True,
@@ -24,11 +25,9 @@ mcp_app.add_middleware(
 # ── Tool definitions ─────────────────────────────
 
 TOOLS = [
-    # ... existing tools ...
     {"name": "query_daily", "description": "查询股票日线行情",
      "inputSchema": {"type": "object", "properties": {
-         "code": {"type": "string", "description": "股票代码"},
-         "days": {"type": "integer", "description": "最近N个交易日"}}}},
+         "code": {"type": "string"}, "days": {"type": "integer"}}}},
     {"name": "query_moneyflow", "description": "查询个股资金流向",
      "inputSchema": {"type": "object", "properties": {
          "code": {"type": "string"}, "days": {"type": "integer"}}}},
@@ -54,32 +53,36 @@ TOOLS = [
      "inputSchema": {"type": "object", "properties": {
          "pe_max": {"type": "number"}, "pb_max": {"type": "number"},
          "roe_min": {"type": "number"}, "industry": {"type": "string"}}}},
-    # ── NEW: Indicator tools ────────────────────
-    {"name": "get_ma", "description": "计算移动平均线(MA5/10/20/60)",
+    # ── Indicators ──
+    {"name": "get_ma", "description": "移动平均线(MA5/10/20/60)",
      "inputSchema": {"type": "object", "properties": {
-         "code": {"type": "string", "description": "股票代码"},
-         "days": {"type": "integer", "description": "数据天数,默认60"}}}},
-    {"name": "get_macd", "description": "计算MACD指标(DIF/DEA/柱)",
+         "code": {"type": "string"}, "days": {"type": "integer"}}}},
+    {"name": "get_macd", "description": "MACD(DIF/DEA/柱)",
      "inputSchema": {"type": "object", "properties": {
-         "code": {"type": "string"}, "days": {"type": "integer", "description": "默认120"}}}},
-    {"name": "get_rsi", "description": "计算RSI指标(6/12/24)",
+         "code": {"type": "string"}, "days": {"type": "integer"}}}},
+    {"name": "get_rsi", "description": "RSI相对强弱指标(6/12/24)",
      "inputSchema": {"type": "object", "properties": {
-         "code": {"type": "string"}, "days": {"type": "integer", "description": "默认60"}}}},
-    {"name": "get_kdj", "description": "计算KDJ随机指标",
+         "code": {"type": "string"}, "days": {"type": "integer"}}}},
+    {"name": "get_kdj", "description": "KDJ随机指标",
      "inputSchema": {"type": "object", "properties": {
-         "code": {"type": "string"}, "days": {"type": "integer", "description": "默认60"}}}},
-    {"name": "get_boll", "description": "计算布林带(BOLL)",
+         "code": {"type": "string"}, "days": {"type": "integer"}}}},
+    {"name": "get_boll", "description": "布林带(BOLL)",
      "inputSchema": {"type": "object", "properties": {
-         "code": {"type": "string"}, "days": {"type": "integer", "description": "默认60"}}}},
-    {"name": "get_golden_cross", "description": "检测MA5金叉MA10信号",
-     "inputSchema": {"type": "object", "properties": {
-         "code": {"type": "string"}}}},
-    {"name": "get_death_cross", "description": "检测MA5死叉MA10信号",
+         "code": {"type": "string"}, "days": {"type": "integer"}}}},
+    {"name": "get_golden_cross", "description": "检测MA5金叉MA10",
      "inputSchema": {"type": "object", "properties": {
          "code": {"type": "string"}}}},
-    {"name": "get_rsi_signal", "description": "检测RSI超买超卖信号",
+    {"name": "get_death_cross", "description": "检测MA5死叉MA10",
      "inputSchema": {"type": "object", "properties": {
          "code": {"type": "string"}}}},
+    {"name": "get_rsi_signal", "description": "检测RSI超买超卖",
+     "inputSchema": {"type": "object", "properties": {
+         "code": {"type": "string"}}}},
+    # ── Report ──
+    {"name": "get_report", "description": "生成完整AI分析报告(行情+资金+财务+46指标+综合研判)",
+     "inputSchema": {"type": "object", "properties": {
+         "code": {"type": "string", "description": "股票代码或名称"}},
+         "required": ["code"]}},
 ]
 
 
@@ -94,7 +97,7 @@ def call_tool(request: dict, auth_info: dict = Depends(require_auth)):
     args = request.get("arguments", request.get("args", {}))
 
     try:
-        # ── Data tools ──────────────────────────
+        # ── Data ──
         if name == "query_daily":
             return {"result": fmt_df(query_daily(args.get("code",""), args.get("days",20)))}
         elif name == "query_moneyflow":
@@ -116,32 +119,22 @@ def call_tool(request: dict, auth_info: dict = Depends(require_auth)):
                 pe_max=args.get("pe_max"), pb_max=args.get("pb_max"),
                 roe_min=args.get("roe_min"), industry=args.get("industry")))}
 
-        # ── Indicator tools ─────────────────────
+        # ── Indicators ──
         elif name == "get_ma":
             df = query_daily(args.get("code",""), args.get("days",60))
-            if df.empty: return {"result": "无数据"}
-            r = indicators.calc_ma(df.sort_values("trade_date"))
-            return {"result": fmt_df(r.tail(20))}
+            return {"result": "无数据" if df.empty else fmt_df(indicators.calc_ma(df.sort_values("trade_date")).tail(20))}
         elif name == "get_macd":
             df = query_daily(args.get("code",""), args.get("days",120))
-            if df.empty: return {"result": "无数据"}
-            r = indicators.calc_macd(df.sort_values("trade_date"))
-            return {"result": fmt_df(r.tail(20))}
+            return {"result": "无数据" if df.empty else fmt_df(indicators.calc_macd(df.sort_values("trade_date")).tail(20))}
         elif name == "get_rsi":
             df = query_daily(args.get("code",""), args.get("days",60))
-            if df.empty: return {"result": "无数据"}
-            r = indicators.calc_rsi(df.sort_values("trade_date"))
-            return {"result": fmt_df(r.tail(20))}
+            return {"result": "无数据" if df.empty else fmt_df(indicators.calc_rsi(df.sort_values("trade_date")).tail(20))}
         elif name == "get_kdj":
             df = query_daily(args.get("code",""), args.get("days",60))
-            if df.empty: return {"result": "无数据"}
-            r = indicators.calc_kdj(df.sort_values("trade_date"))
-            return {"result": fmt_df(r.tail(20))}
+            return {"result": "无数据" if df.empty else fmt_df(indicators.calc_kdj(df.sort_values("trade_date")).tail(20))}
         elif name == "get_boll":
             df = query_daily(args.get("code",""), args.get("days",60))
-            if df.empty: return {"result": "无数据"}
-            r = indicators.calc_boll(df.sort_values("trade_date"))
-            return {"result": fmt_df(r.tail(20))}
+            return {"result": "无数据" if df.empty else fmt_df(indicators.calc_boll(df.sort_values("trade_date")).tail(20))}
         elif name == "get_golden_cross":
             sig = indicators.check_golden_cross(args.get("code",""))
             return {"result": sig or "无金叉信号"}
@@ -152,9 +145,14 @@ def call_tool(request: dict, auth_info: dict = Depends(require_auth)):
             sig = indicators.check_rsi_signal(args.get("code",""))
             return {"result": sig or "无RSI超买超卖信号"}
 
+        # ── Report ──
+        elif name == "get_report":
+            from .report import analyze
+            return {"result": analyze(args.get("code", ""))}
+
         else:
             names = [t["name"] for t in TOOLS]
-            return {"error": f"未知工具: {name}. 可用: {', '.join(names)}"}
+            return {"error": f"未知工具: {name}"}
     except Exception as e:
         return {"error": f"执行失败: {e}"}
 
